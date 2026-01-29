@@ -1,197 +1,156 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PriceNow Pro | Live Market Terminal</title>
+    <title>PriceNow Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
-        body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #050505; color: #f1f5f9; direction: rtl; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .gold-card { background: linear-gradient(145deg, #111, #080808); border: 1px solid rgba(212, 175, 55, 0.1); }
-        .chart-container { position: relative; height: 100px; width: 100%; }
-        @keyframes pulse-gold { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .live-dot { width: 8px; height: 8px; background: #eab308; border-radius: 50%; animation: pulse-gold 2s infinite; }
-        .ios-prompt { display: none; position: fixed; bottom: 20px; left: 20px; right: 20px; background: #18181b; border: 1px solid #eab308; border-radius: 1rem; z-index: 1000; padding: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&display=swap');
+        body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #000; color: #fff; }
+        
+        /* Native-style Modal Animation */
+        .modal-up { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .glass { background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .ios-share-icon { width: 20px; height: 25px; border: 2px solid #007aff; display: inline-block; vertical-align: middle; position: relative; margin: 0 5px; }
+        .ios-share-icon::after { content: '↑'; position: absolute; top: -10px; left: 2px; color: #007aff; font-weight: bold; }
     </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="overflow-x-hidden">
 
-    <!-- iOS Install Instruction (Manual PWA) -->
-    <div id="ios-install-prompt" class="ios-prompt">
-        <div class="flex items-start gap-3">
-            <div class="bg-yellow-500 text-black p-2 rounded-lg"><i class="fas fa-plus"></i></div>
-            <div class="flex-1">
-                <p class="text-sm font-bold text-white mb-1">لتفعيل التنبيهات على iPhone:</p>
-                <p class="text-xs text-zinc-400 leading-relaxed">اضغط على زر المشاركة <i class="fa-solid fa-arrow-up-from-bracket mx-1 text-blue-400"></i> ثم اختر "Add to Home Screen" وافتح التطبيق من الشاشة الرئيسية.</p>
+    <!-- 1. Soft Permission Prompt (The "Native" Bridge) -->
+    <div id="soft-prompt" class="fixed inset-0 z-[100] hidden flex items-end sm:items-center justify-center p-4 bg-black/60">
+        <div class="glass w-full max-w-sm rounded-[2rem] p-6 text-center modal-up border border-white/10">
+            <div class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-yellow-500/20">
+                <i class="fas fa-bell text-black text-2xl"></i>
             </div>
-            <button onclick="this.parentElement.parentElement.style.display='none'" class="text-zinc-500"><i class="fas fa-times"></i></button>
+            <h2 class="text-xl font-bold mb-2">تفعيل التنبيهات المباشرة</h2>
+            <p class="text-zinc-400 text-sm mb-6 leading-relaxed">احصل على تنبيه فوري عند تغير سعر الذهب العالمي والمحلي لحظة بلحظة.</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="requestNativePermission()" class="w-full bg-white text-black font-black py-4 rounded-2xl active:scale-95 transition">السماح الآن</button>
+                <button onclick="closePrompt('soft-prompt')" class="w-full text-zinc-500 font-bold py-2">ليس الآن</button>
+            </div>
         </div>
     </div>
 
-    <header class="bg-black/95 border-b border-zinc-800 py-3 px-4 sticky top-0 z-50 backdrop-blur-xl">
-        <div class="max-w-[1600px] mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center text-black">
-                    <i class="fas fa-chart-line text-xl"></i>
+    <!-- 2. iOS Install Guide (Mimics system tray) -->
+    <div id="ios-guide" class="fixed bottom-6 left-6 right-6 z-[101] hidden">
+        <div class="glass border border-white/10 rounded-2xl p-5 shadow-2xl">
+            <div class="flex items-center gap-4 mb-3">
+                <div class="w-12 h-12 bg-yellow-500 rounded-xl flex-shrink-0 flex items-center justify-center text-black font-black text-xl">P</div>
+                <div class="flex-1">
+                    <p class="font-bold text-sm">ثبّت التطبيق لتفعيل التنبيهات</p>
+                    <p class="text-[10px] text-zinc-400">نظام iOS يتطلب إضافة التطبيق للشاشة الرئيسية</p>
                 </div>
-                <div>
-                    <h1 class="text-lg font-black text-white">Price<span class="text-yellow-500">Now</span></h1>
-                    <div class="flex items-center gap-2">
-                        <div class="live-dot"></div>
-                        <p class="text-[8px] text-zinc-500 font-bold uppercase tracking-widest">Live Updates</p>
-                    </div>
-                </div>
+                <button onclick="closePrompt('ios-guide')" class="text-zinc-500 p-2"><i class="fas fa-times"></i></button>
             </div>
-            
-            <button id="notif-btn" onclick="handleNotificationClick()" class="text-[10px] font-black bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-3 py-2 rounded-lg active:scale-95 transition">
-                <i class="fas fa-bell ml-1"></i> تفعيل التنبيهات
-            </button>
+            <div class="bg-white/5 rounded-xl p-3 text-[11px] leading-relaxed">
+                اضغط على زر المشاركة <span class="ios-share-icon"></span> ثم اختر <span class="font-bold">"Add to Home Screen"</span> من القائمة.
+            </div>
         </div>
+    </div>
+
+    <!-- App Content -->
+    <header class="p-6 flex justify-between items-center border-b border-white/5">
+        <h1 class="text-2xl font-black italic">PRICENOW<span class="text-yellow-500">.</span></h1>
+        <button id="main-notif-btn" onclick="initPermissionFlow()" class="w-10 h-10 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center relative">
+            <i class="fas fa-bell text-sm text-yellow-500"></i>
+            <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-black"></span>
+        </button>
     </header>
 
-    <main class="max-w-[1600px] mx-auto p-4 lg:p-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4" id="dashboard-grid">
-            <!-- Dynamic Gold Cards Injected Here -->
-        </div>
-
-        <div class="mt-8 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-4 overflow-hidden">
-            <h2 class="text-xl font-black text-white mb-4 pr-2">تحليل السوق</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-right">
-                    <thead>
-                        <tr class="text-[9px] text-zinc-500 font-black border-b border-zinc-800">
-                            <th class="pb-3 pr-2">العيار</th>
-                            <th class="pb-3 text-center">شراء</th>
-                            <th class="pb-3 text-center">تغير</th>
-                        </tr>
-                    </thead>
-                    <tbody id="detailed-table-body" class="text-xs font-bold"></tbody>
-                </table>
+    <main class="p-4">
+        <div class="bg-zinc-900/50 rounded-3xl p-6 border border-white/5 mb-4">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <p class="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">ذهب عيار 21</p>
+                    <h2 class="text-4xl font-black mono tracking-tighter" id="price-main">3,450.00</h2>
+                </div>
+                <div class="text-right">
+                    <p class="text-green-500 font-bold text-sm">+2.4%</p>
+                    <p class="text-[10px] text-zinc-600">آخر تحديث: الآن</p>
+                </div>
+            </div>
+            <div class="h-24 flex items-end gap-1">
+                <!-- Simple bar chart mock -->
+                <div class="flex-1 bg-zinc-800 rounded-t-lg h-[40%]"></div>
+                <div class="flex-1 bg-zinc-800 rounded-t-lg h-[60%]"></div>
+                <div class="flex-1 bg-zinc-800 rounded-t-lg h-[50%]"></div>
+                <div class="flex-1 bg-zinc-800 rounded-t-lg h-[80%]"></div>
+                <div class="flex-1 bg-yellow-500 rounded-t-lg h-[95%]"></div>
             </div>
         </div>
     </main>
 
     <script>
-        const KARATS = [
-            { id: '24', name: 'عيار 24', base: 8430, color: '#facc15' },
-            { id: '21', name: 'عيار 21', base: 7375, color: '#ca8a04' },
-            { id: '18', name: 'عيار 18', base: 6320, color: '#a16207' },
-            { id: 'pound', name: 'الجنيه', base: 59000, color: '#fbbf24' }
-        ];
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
-        const state = {};
-        const charts = {};
-
-        function init() {
-            const grid = document.getElementById('dashboard-grid');
-            KARATS.forEach(k => {
-                state[k.id] = { current: k.base, history: Array.from({length: 15}, () => k.base + Math.random()*20-10) };
-                
-                const card = document.createElement('div');
-                card.className = "gold-card rounded-2xl p-4";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-[10px] text-zinc-500 font-bold">${k.name}</span>
-                        <span id="trend-${k.id}" class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-800">0.00%</span>
-                    </div>
-                    <div class="text-2xl font-black text-white mono mb-2" id="price-${k.id}">${k.base}</div>
-                    <div class="chart-container"><canvas id="chart-${k.id}"></canvas></div>
-                `;
-                grid.appendChild(card);
-
-                const ctx = document.getElementById(`chart-${k.id}`).getContext('2d');
-                charts[k.id] = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: state[k.id].history.map((_, i) => i),
-                        datasets: [{
-                            data: state[k.id].history,
-                            borderColor: k.color,
-                            borderWidth: 2,
-                            pointRadius: 0,
-                            tension: 0.4,
-                            fill: true,
-                            backgroundColor: k.color + '11'
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-                });
-            });
-            updateLoop();
-            checkNotificationStatus();
-        }
-
-        function updateLoop() {
-            setInterval(() => {
-                KARATS.forEach(k => {
-                    const change = (Math.random() * 4) - 2;
-                    state[k.id].current += change;
-                    const perc = ((state[k.id].current - k.base) / k.base * 100).toFixed(2);
-                    
-                    document.getElementById(`price-${k.id}`).innerText = Math.round(state[k.id].current).toLocaleString();
-                    document.getElementById(`trend-${k.id}`).innerText = (perc >= 0 ? '+' : '') + perc + '%';
-                    document.getElementById(`trend-${k.id}`).className = `text-[9px] font-mono px-1.5 py-0.5 rounded ${perc >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`;
-                    
-                    const c = charts[k.id];
-                    c.data.datasets[0].data.push(state[k.id].current);
-                    if (c.data.datasets[0].data.length > 20) c.data.datasets[0].data.shift();
-                    c.update('none');
-                });
-                renderTable();
-            }, 1000);
-        }
-
-        function renderTable() {
-            const body = document.getElementById('detailed-table-body');
-            body.innerHTML = KARATS.map(k => `
-                <tr class="border-b border-zinc-800/50">
-                    <td class="py-3 pr-2 text-zinc-300">${k.name}</td>
-                    <td class="py-3 text-center mono text-white">${Math.round(state[k.id].current).toLocaleString()}</td>
-                    <td class="py-3 text-center mono ${state[k.id].current >= k.base ? 'text-green-500' : 'text-red-500'}">${(state[k.id].current - k.base).toFixed(1)}</td>
-                </tr>
-            `).join('');
-        }
-
-        // --- Notification Logic ---
-        function checkNotificationStatus() {
-            const btn = document.getElementById('notif-btn');
-            if (!("Notification" in window)) {
-                btn.style.display = 'none';
-                return;
-            }
-            if (Notification.permission === "granted") {
-                btn.innerHTML = '<i class="fas fa-check-circle ml-1"></i> التنبيهات مفعّلة';
-                btn.classList.replace('text-yellow-500', 'text-green-500');
-            }
-        }
-
-        async function handleNotificationClick() {
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-
+        function initPermissionFlow() {
             if (isIOS && !isStandalone) {
-                document.getElementById('ios-install-prompt').style.display = 'block';
+                // iPhone user in Safari browser -> Show Install Guide
+                document.getElementById('ios-guide').classList.remove('hidden');
+            } else {
+                // Android or PWA mode -> Show Soft Prompt (Native feel)
+                document.getElementById('soft-prompt').classList.remove('hidden');
+            }
+        }
+
+        async function requestNativePermission() {
+            closePrompt('soft-prompt');
+            
+            if (!("Notification" in window)) {
+                showSimpleToast("متصفحك لا يدعم التنبيهات");
                 return;
             }
 
             try {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
-                    new Notification("PriceNow Live", { body: "سوف نخطرك عند حدوث تغيرات كبيرة في أسعار الذهب." });
-                    checkNotificationStatus();
+                    showSimpleToast("تم تفعيل التنبيهات بنجاح");
+                    updateUIForGranted();
+                    // Send test notification
+                    new Notification("PriceNow Pro", {
+                        body: "تم تفعيل تنبيهات الأسعار بنجاح ✅",
+                        icon: "https://cdn-icons-png.flaticon.com/512/2855/2855239.png"
+                    });
                 } else {
-                    alert("يجب السماح بالتنبيهات من إعدادات المتصفح.");
+                    showSimpleToast("تم رفض الطلب. يرجى التفعيل من الإعدادات.");
                 }
-            } catch (err) {
-                console.error("Permission request failed", err);
+            } catch (e) {
+                console.error(e);
             }
         }
 
-        window.onload = init;
+        function updateUIForGranted() {
+            const btn = document.getElementById('main-notif-btn');
+            btn.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+            btn.querySelector('span')?.remove();
+        }
+
+        function closePrompt(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showSimpleToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-10 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full text-xs font-bold z-[200] border border-white/10";
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Auto-show prompt after 3 seconds for better engagement
+        window.onload = () => {
+            if (Notification.permission !== 'granted') {
+                setTimeout(initPermissionFlow, 2500);
+            } else {
+                updateUIForGranted();
+            }
+        };
     </script>
 </body>
 </html>
