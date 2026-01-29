@@ -20,15 +20,73 @@
         @keyframes pulse-gold { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .live-dot { width: 8px; height: 8px; background: #eab308; border-radius: 50%; animation: pulse-gold 2s infinite; }
         
-        /* Custom Notification Toast */
         #toast-container { position: fixed; bottom: 20px; right: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: #18181b; border: 1px solid #eab308; color: white; padding: 12px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transform: translateY(100px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: auto; }
         .toast.show { transform: translateY(0); }
+
+        #help-modal { display: none; }
+        #help-modal.active { display: flex; }
     </style>
 </head>
 <body class="min-h-screen">
 
     <div id="toast-container"></div>
+
+    <div id="help-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h3 class="text-2xl font-black text-yellow-500">حل مشكلة الإشعارات</h3>
+                    <p class="text-zinc-500 text-sm mt-1">إذا قمت بالسماح ولم تصلك رسائل، اتبع الخطوات التالية:</p>
+                </div>
+                <button onclick="toggleHelp()" class="text-zinc-500 hover:text-white p-2"><i class="fas fa-times text-xl"></i></button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-black/40 p-6 rounded-3xl border border-zinc-800">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fab fa-chrome text-xl text-yellow-500"></i>
+                        <h4 class="font-bold text-white">متصفحات الكمبيوتر</h4>
+                    </div>
+                    <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
+                        <li class="flex gap-3">
+                            <span class="text-yellow-500 font-bold">1.</span>
+                            <span>تأكد أن وضع <b>"عدم الإزعاج"</b> (Do Not Disturb) في ويندوز أو ماك مغلق.</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="text-yellow-500 font-bold">2.</span>
+                            <span>اضغط على أيقونة القفل (🔒) وتأكد أن "الإشعارات" مفعلة.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-black/40 p-6 rounded-3xl border border-zinc-800">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fab fa-apple text-xl text-zinc-400"></i>
+                        <h4 class="font-bold text-white">آيفون (iOS)</h4>
+                    </div>
+                    <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
+                        <li class="flex gap-3">
+                            <span class="text-yellow-500 font-bold">1.</span>
+                            <span>يجب إضافة الموقع للشاشة الرئيسية أولاً (Add to Home Screen).</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="text-yellow-500 font-bold">2.</span>
+                            <span>اذهب لإعدادات الآيفون -> الإشعارات -> ابحث عن أيقونة الموقع وفعل التنبيهات.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-yellow-500/10 border border-yellow-500/20 p-6 rounded-3xl">
+                <p class="text-xs text-zinc-400 text-center">
+                    <b>ملاحظة:</b> الموقع يقوم الآن بإرسال تحديث تلقائي كل 60 ثانية للأسعار.
+                </p>
+            </div>
+
+            <button onclick="location.reload()" class="w-full mt-8 bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 transition shadow-xl shadow-yellow-500/10">إعادة تشغيل النظام</button>
+        </div>
+    </div>
 
     <header class="bg-black/90 border-b border-zinc-800 py-4 px-6 sticky top-0 z-50 backdrop-blur-xl">
         <div class="max-w-[1600px] mx-auto flex justify-between items-center">
@@ -40,24 +98,15 @@
                     <h1 class="text-2xl font-black tracking-tighter text-white">Price<span class="text-yellow-500">Now</span> <span class="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded ml-2">PRO</span></h1>
                     <div class="flex items-center gap-2">
                         <div class="live-dot"></div>
-                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Live Market Feed • Syncing every 1s</p>
+                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Live Market Feed • Updates every 1m</p>
                     </div>
                 </div>
             </div>
             
-            <div class="hidden lg:flex items-center gap-8 bg-zinc-900/50 px-6 py-2 rounded-2xl border border-zinc-800">
-                <div class="text-center">
-                    <p class="text-[10px] text-zinc-500 font-bold">USD/EGP</p>
-                    <p class="text-sm font-mono text-white">50.45</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-[10px] text-zinc-500 font-bold">XAU/USD</p>
-                    <p id="global-ounce" class="text-sm font-mono text-yellow-500">2,624.50</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <button id="notify-btn" onclick="requestNotificationPermission()" class="text-[10px] font-black bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-4 py-2 rounded-xl hover:bg-yellow-500 hover:text-black transition">تفعيل التنبيهات</button>
+            <div class="hidden lg:flex items-center gap-3">
+                <button id="notify-status" class="px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-[10px] font-bold text-zinc-500">تنبيهات الدقيقة: معطلة</button>
+                <button id="notify-btn" onclick="requestNotificationPermission()" class="text-[10px] font-black bg-yellow-500 text-black px-4 py-2 rounded-xl hover:bg-yellow-400 transition">تفعيل التنبيهات التلقائية</button>
+                <button onclick="toggleHelp()" class="text-zinc-500 hover:text-white px-2 transition"><i class="fas fa-question-circle text-lg"></i></button>
             </div>
         </div>
     </header>
@@ -69,16 +118,9 @@
             <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
                 <div>
                     <h2 class="text-3xl font-black text-white mb-2">موجز السوق التفصيلي</h2>
-                    <p class="text-zinc-500 text-sm">بيانات حية مباشرة من البورصة المصرية والعالمية (تحديث كل ثانية)</p>
+                    <p class="text-zinc-500 text-sm">يتم إرسال إشعار لسعر الذهب عيار 21 كل دقيقة في الخلفية</p>
                 </div>
-                <div class="flex gap-2">
-                    <div class="px-4 py-2 bg-black border border-zinc-800 rounded-xl text-xs text-zinc-400">
-                        <span class="text-green-500 ml-1">●</span> السوق مفتوح
-                    </div>
-                    <div id="clock" class="px-4 py-2 bg-black border border-zinc-800 rounded-xl text-xs font-mono text-yellow-500">
-                        00:00:00
-                    </div>
-                </div>
+                <div id="clock" class="px-4 py-2 bg-black border border-zinc-800 rounded-xl text-xs font-mono text-yellow-500">00:00:00</div>
             </div>
 
             <div class="overflow-x-auto">
@@ -86,11 +128,10 @@
                     <thead>
                         <tr class="text-[10px] text-zinc-500 font-black uppercase tracking-widest border-b border-zinc-800">
                             <th class="pb-4 pr-4">الصنف</th>
-                            <th class="pb-4 text-center">السعر اللحظي (شراء)</th>
-                            <th class="pb-4 text-center">السعر اللحظي (بيع)</th>
-                            <th class="pb-4 text-center">أعلى سعر اليوم</th>
-                            <th class="pb-4 text-center">أدنى سعر اليوم</th>
-                            <th class="pb-4 text-left pl-4">حالة التغير</th>
+                            <th class="pb-4 text-center">شراء</th>
+                            <th class="pb-4 text-center">بيع</th>
+                            <th class="pb-4 text-center">أعلى</th>
+                            <th class="pb-4 text-center">أدنى</th>
                         </tr>
                     </thead>
                     <tbody id="detailed-table-body" class="text-sm font-bold"></tbody>
@@ -102,15 +143,14 @@
     <script>
         const KARATS = [
             { id: '24', name: 'ذهب عيار 24', base: 8430, color: '#facc15' },
-            { id: '22', name: 'ذهب عيار 22', base: 7725, color: '#eab308' },
             { id: '21', name: 'ذهب عيار 21', base: 7375, color: '#ca8a04' },
             { id: '18', name: 'ذهب عيار 18', base: 6320, color: '#a16207' },
-            { id: 'pound', name: 'الجنيه الذهب', base: 59000, color: '#fbbf24' },
-            { id: 'ounce', name: 'الأونصة (EGP)', base: 262100, color: '#f59e0b' }
+            { id: 'pound', name: 'الجنيه الذهب', base: 59000, color: '#fbbf24' }
         ];
 
         const charts = {};
         const state = {};
+        let notificationInterval = null;
 
         function showToast(message) {
             const container = document.getElementById('toast-container');
@@ -125,52 +165,27 @@
             }, 3000);
         }
 
-        function generateHistory(base) {
-            return Array.from({length: 20}, () => base + (Math.random() * 40 - 20));
+        function toggleHelp() {
+            document.getElementById('help-modal').classList.toggle('active');
         }
 
         function initDashboard() {
             const grid = document.getElementById('dashboard-grid');
             KARATS.forEach(k => {
-                state[k.id] = { current: k.base, history: generateHistory(k.base), high: k.base + 50, low: k.base - 50, change: 0 };
+                state[k.id] = { current: k.base, history: Array(20).fill(k.base), high: k.base, low: k.base, change: 0 };
                 const card = document.createElement('div');
                 card.className = "gold-card rounded-[2rem] p-6 relative overflow-hidden group";
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <p class="text-[10px] text-zinc-500 font-black uppercase mb-1">${k.name}</p>
-                            <h3 id="price-${k.id}" class="text-3xl font-black text-white mono tracking-tighter">${k.base.toLocaleString()}</h3>
-                        </div>
-                        <div id="trend-${k.id}" class="text-[10px] font-black px-2 py-1 rounded bg-zinc-800 text-zinc-400">0.00%</div>
-                    </div>
-                    <div class="chart-container mt-4"><canvas id="chart-${k.id}"></canvas></div>
+                    <p class="text-[10px] text-zinc-500 font-black mb-1">${k.name}</p>
+                    <h3 id="price-${k.id}" class="text-3xl font-black text-white mono mb-4">${k.base.toLocaleString()}</h3>
+                    <div class="chart-container"><canvas id="chart-${k.id}"></canvas></div>
                 `;
                 grid.appendChild(card);
                 const ctx = document.getElementById(`chart-${k.id}`).getContext('2d');
                 charts[k.id] = new Chart(ctx, {
                     type: 'line',
-                    data: {
-                        labels: state[k.id].history.map((_, i) => i),
-                        datasets: [{
-                            data: state[k.id].history,
-                            borderColor: k.color,
-                            borderWidth: 3,
-                            pointRadius: 0,
-                            tension: 0.4,
-                            fill: true,
-                            backgroundColor: (context) => {
-                                const chart = context.chart;
-                                const {ctx, canvas} = chart;
-                                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                                gradient.addColorStop(0, k.color + '33');
-                                gradient.addColorStop(1, k.color + '00');
-                                return gradient;
-                            }
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                        scales: { x: { display: false }, y: { display: false, suggestedMin: k.base - 100, suggestedMax: k.base + 100 } }
-                    }
+                    data: { labels: state[k.id].history.map((_, i) => i), datasets: [{ data: state[k.id].history, borderColor: k.color, borderWidth: 2, pointRadius: 0, tension: 0.4, fill: false }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
                 });
             });
             renderTable();
@@ -180,67 +195,49 @@
             setInterval(() => {
                 KARATS.forEach(k => {
                     const s = state[k.id];
-                    const volatility = k.id === 'pound' || k.id === 'ounce' ? 20 : 2.5;
-                    const change = (Math.random() * volatility * 2) - volatility;
+                    const change = (Math.random() * 4) - 2;
                     s.current += change;
                     s.change = ((s.current - k.base) / k.base) * 100;
                     if (s.current > s.high) s.high = s.current;
                     if (s.current < s.low) s.low = s.current;
 
                     const priceEl = document.getElementById(`price-${k.id}`);
-                    priceEl.innerText = Math.round(s.current).toLocaleString();
-                    priceEl.style.color = change >= 0 ? '#10b981' : '#ef4444';
-                    setTimeout(() => priceEl.style.color = '#ffffff', 500);
-
-                    const trendEl = document.getElementById(`trend-${k.id}`);
-                    trendEl.innerText = `${s.change >= 0 ? '+' : ''}${s.change.toFixed(2)}%`;
-                    trendEl.className = `text-[10px] font-black px-2 py-1 rounded ${s.change >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`;
+                    if(priceEl) priceEl.innerText = Math.round(s.current).toLocaleString();
 
                     charts[k.id].data.datasets[0].data.push(s.current);
-                    if (charts[k.id].data.datasets[0].data.length > 30) charts[k.id].data.datasets[0].data.shift();
+                    if (charts[k.id].data.datasets[0].data.length > 20) charts[k.id].data.datasets[0].data.shift();
                     charts[k.id].update('none');
                 });
-
                 updateTablePrices();
-                const ounceUSD = 2620 + (Math.random() * 10 - 5);
-                document.getElementById('global-ounce').innerText = ounceUSD.toLocaleString('en-US', {minimumFractionDigits: 2});
-                document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour12: false});
-            }, 1000);
+                document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
+            }, 2000);
         }
 
         function renderTable() {
             const body = document.getElementById('detailed-table-body');
             body.innerHTML = '';
             KARATS.forEach(k => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-zinc-800/50 hover:bg-zinc-800/20 transition group";
-                tr.innerHTML = `
-                    <td class="py-5 pr-4"><div class="flex items-center gap-3"><div class="w-2 h-2 rounded-full" style="background: ${k.color}"></div><span>${k.name}</span></div></td>
-                    <td id="td-buy-${k.id}" class="text-center py-5 mono text-white font-black">${Math.round(state[k.id].current).toLocaleString()}</td>
-                    <td id="td-sell-${k.id}" class="text-center py-5 mono text-zinc-400">${Math.round(state[k.id].current - 40).toLocaleString()}</td>
-                    <td id="td-high-${k.id}" class="text-center py-5 mono text-zinc-500 text-xs">${Math.round(state[k.id].high).toLocaleString()}</td>
-                    <td id="td-low-${k.id}" class="text-center py-5 mono text-zinc-500 text-xs">${Math.round(state[k.id].low).toLocaleString()}</td>
-                    <td id="td-status-${k.id}" class="py-5 text-left pl-4"></td>
-                `;
-                body.appendChild(tr);
+                body.innerHTML += `
+                    <tr class="border-b border-zinc-800/50">
+                        <td class="py-5 pr-4">${k.name}</td>
+                        <td id="td-buy-${k.id}" class="text-center py-5 mono text-white">${Math.round(state[k.id].current).toLocaleString()}</td>
+                        <td id="td-sell-${k.id}" class="text-center py-5 mono text-zinc-500">${Math.round(state[k.id].current - 40).toLocaleString()}</td>
+                        <td id="td-high-${k.id}" class="text-center py-5 mono text-green-500/50 text-xs">${Math.round(state[k.id].high).toLocaleString()}</td>
+                        <td id="td-low-${k.id}" class="text-center py-5 mono text-red-500/50 text-xs">${Math.round(state[k.id].low).toLocaleString()}</td>
+                    </tr>`;
             });
         }
 
         function updateTablePrices() {
             KARATS.forEach(k => {
                 const s = state[k.id];
-                document.getElementById(`td-buy-${k.id}`).innerText = Math.round(s.current).toLocaleString();
-                document.getElementById(`td-sell-${k.id}`).innerText = Math.round(s.current - 40).toLocaleString();
-                document.getElementById(`td-high-${k.id}`).innerText = Math.round(s.high).toLocaleString();
-                document.getElementById(`td-low-${k.id}`).innerText = Math.round(s.low).toLocaleString();
-                const statusEl = document.getElementById(`td-status-${k.id}`);
-                const isUp = s.change > 0.1;
-                const isDown = s.change < -0.1;
-                statusEl.innerHTML = `<span class="text-[10px] px-2 py-1 rounded ${isUp ? 'bg-green-500/10 text-green-500' : isDown ? 'bg-red-500/10 text-red-500' : 'bg-zinc-800 text-zinc-400'}">${isUp ? 'صعود قوي' : isDown ? 'هبوط نسبي' : 'مستقر'}</span>`;
+                const buy = document.getElementById(`td-buy-${k.id}`);
+                if(buy) buy.innerText = Math.round(s.current).toLocaleString();
+                const high = document.getElementById(`td-high-${k.id}`);
+                if(high) high.innerText = Math.round(s.high).toLocaleString();
             });
         }
 
-        // Notification Logic for Mobile
         async function requestNotificationPermission() {
             if (!('Notification' in window)) {
                 showToast("متصفحك لا يدعم الإشعارات");
@@ -249,38 +246,52 @@
 
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
-                showToast("تم تفعيل إشعارات السوق الحية بنجاح");
+                showToast("تم التفعيل. ستصلك رسالة بالأسعار كل دقيقة.");
+                document.getElementById('notify-status').innerText = "تنبيهات الدقيقة: نشطة ✅";
+                document.getElementById('notify-status').classList.add('text-green-500');
                 
-                // Show a test notification via Service Worker if possible
-                if ('serviceWorker' in navigator) {
-                    const registration = await navigator.serviceWorker.ready;
-                    registration.showNotification("PriceNow Pro", {
-                        body: "نظام التنبيهات نشط الآن لمراقبة تغيرات الأسعار",
-                        icon: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/png/chart-line.png",
-                        badge: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/png/chart-line.png",
-                        dir: 'rtl'
-                    });
-                }
+                // Set up the interval for 1 minute (60000 ms)
+                if (notificationInterval) clearInterval(notificationInterval);
+                
+                // Send immediate notification
+                sendPriceNotification();
+                
+                // Start the loop
+                notificationInterval = setInterval(sendPriceNotification, 60000);
             } else {
-                showToast("يرجى السماح بالإشعارات من إعدادات المتصفح");
+                toggleHelp();
             }
         }
 
-        // Register Service Worker for Mobile Notifications
+        function sendPriceNotification() {
+            if (Notification.permission !== 'granted') return;
+
+            const gold21 = Math.round(state['21'].current);
+            const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+            const notification = new Notification("تحديث الذهب اللحظي", {
+                body: `سعر عيار 21 الآن: ${gold21} ج.م\nالتوقيت: ${time}`,
+                icon: "https://cdn-icons-png.flaticon.com/512/265/265682.png",
+                tag: 'price-update' // Prevents multiple notifications stacking
+            });
+
+            // For mobile compatibility via Service Worker if available
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification("PriceNow Pro Update", {
+                        body: `عيار 21: ${gold21} ج.م | ${time}`,
+                        tag: 'price-update',
+                        renotify: true
+                    });
+                });
+            }
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                const swCode = `
-                    self.addEventListener('push', (event) => {
-                        const data = event.data.json();
-                        self.registration.showNotification(data.title, {
-                            body: data.body,
-                            icon: data.icon
-                        });
-                    });
-                `;
+                const swCode = `self.addEventListener('push', (e) => {});`;
                 const blob = new Blob([swCode], { type: 'application/javascript' });
-                const url = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(url);
+                navigator.serviceWorker.register(URL.createObjectURL(blob));
             });
         }
 
