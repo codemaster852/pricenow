@@ -13,7 +13,6 @@
         .mono { font-family: 'JetBrains Mono', monospace; }
         .gold-card { background: linear-gradient(145deg, #111, #080808); border: 1px solid rgba(212, 175, 55, 0.1); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .gold-card:hover { border-color: rgba(212, 175, 55, 0.4); transform: translateY(-4px); box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.15); }
-        .chart-container { position: relative; height: 120px; width: 100%; }
         
         #toast-container { position: fixed; bottom: 20px; right: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: #18181b; border: 1px solid #eab308; color: white; padding: 12px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transform: translateY(100px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: auto; }
@@ -35,8 +34,8 @@
         <div class="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-start mb-6">
                 <div>
-                    <h3 class="text-2xl font-black text-yellow-500">حل مشكلة الإشعارات</h3>
-                    <p class="text-zinc-500 text-sm mt-1">إذا لم تصلك الإشعارات فوراً، تأكد من:</p>
+                    <h3 class="text-2xl font-black text-yellow-500">لماذا لا تصل الإشعارات؟</h3>
+                    <p class="text-zinc-500 text-sm mt-1">اتبع هذه الحلول التقنية:</p>
                 </div>
                 <button onclick="toggleHelp()" class="text-zinc-500 hover:text-white p-2"><i class="fas fa-times text-xl"></i></button>
             </div>
@@ -45,29 +44,25 @@
                 <div class="bg-black/40 p-6 rounded-3xl border border-zinc-800">
                     <div class="flex items-center gap-3 mb-4">
                         <i class="fab fa-chrome text-xl text-yellow-500"></i>
-                        <h4 class="font-bold text-white">إعدادات الموقع</h4>
+                        <h4 class="font-bold text-white">متصفح الكمبيوتر</h4>
                     </div>
                     <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
-                        <li class="flex gap-3">
-                            <span class="text-yellow-500 font-bold">1.</span>
-                            <span>اضغط على أيقونة القفل (🔒) وتأكد أن <b>الإشعارات</b> مفعلة.</span>
-                        </li>
+                        <li>1. تأكد أنك لا تستخدم متصفح <b>Incognito</b> (التصفح الخفي لا يدعم الإشعارات).</li>
+                        <li>2. تأكد من إغلاق وضع <b>Focus Mode</b> في ويندوز 10/11 أو ماك.</li>
                     </ul>
                 </div>
                 <div class="bg-black/40 p-6 rounded-3xl border border-zinc-800">
                     <div class="flex items-center gap-3 mb-4">
-                        <i class="fas fa-desktop text-xl text-zinc-400"></i>
-                        <h4 class="font-bold text-white">إعدادات النظام</h4>
+                        <i class="fab fa-apple text-xl text-zinc-400"></i>
+                        <h4 class="font-bold text-white">آيفون (iOS)</h4>
                     </div>
                     <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
-                        <li class="flex gap-3">
-                            <span class="text-yellow-500 font-bold">1.</span>
-                            <span>أوقف وضع <b>Focus</b> أو <b>Do Not Disturb</b> في جهازك.</span>
-                        </li>
+                        <li>1. اضغط "Share" ثم <b>"Add to Home Screen"</b>.</li>
+                        <li>2. افتح التطبيق من الشاشة الرئيسية، وإلا لن تعمل الإشعارات أبداً.</li>
                     </ul>
                 </div>
             </div>
-            <button onclick="location.reload()" class="w-full mt-8 bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 transition">إعادة تشغيل</button>
+            <button onclick="location.reload()" class="w-full mt-8 bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 transition">إعادة تحميل الصفحة</button>
         </div>
     </div>
 
@@ -81,7 +76,7 @@
                     <h1 class="text-2xl font-black tracking-tighter text-white">Price<span class="text-yellow-500">Now</span></h1>
                     <div class="flex items-center gap-2">
                         <div class="live-dot"></div>
-                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Auto-notify: Every 60s</p>
+                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Updates every 60s</p>
                     </div>
                 </div>
             </div>
@@ -92,7 +87,6 @@
                         <i id="notify-icon" class="fas fa-bell"></i>
                     </div>
                     <div class="text-right">
-                        <p id="notify-label" class="text-[10px] font-black text-zinc-500 uppercase leading-none mb-1">تحديث دوري</p>
                         <p id="notify-status-text" class="text-xs font-bold text-white leading-none">تفعيل التنبيهات</p>
                     </div>
                 </button>
@@ -107,18 +101,24 @@
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6" id="dashboard-grid"></div>
 
         <div class="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] p-8 text-center md:text-right">
-            <h2 class="text-3xl font-black text-white mb-2">تنبيهات تلقائية كل دقيقة</h2>
-            <p class="text-zinc-500 text-sm mb-6">سيصلك إشعار فوري عند الضغط على الزر، ثم إشعار جديد كل 60 ثانية بالأسعار المحدثة.</p>
-            <div id="clock" class="inline-block px-4 py-2 bg-black border border-zinc-800 rounded-xl text-xs font-mono text-yellow-500">00:00:00</div>
+            <h2 class="text-3xl font-black text-white mb-2">تنبيهات السعر التلقائية</h2>
+            <p class="text-zinc-500 text-sm mb-6">إذا لم يعمل التنبيه بعد التفعيل، جرب زر الاختبار أدناه:</p>
+            
+            <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-6">
+                <button onclick="testNotification()" class="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold hover:bg-white/10 transition">
+                    إرسال إشعار تجريبي الآن
+                </button>
+                <div id="clock" class="px-4 py-3 bg-black border border-zinc-800 rounded-xl text-xs font-mono text-yellow-500">00:00:00</div>
+            </div>
         </div>
     </main>
 
     <script>
         const KARATS = [
-            { id: '24', name: 'ذهب عيار 24', base: 8430, color: '#facc15' },
-            { id: '21', name: 'ذهب عيار 21', base: 7375, color: '#ca8a04' },
-            { id: '18', name: 'ذهب عيار 18', base: 6320, color: '#a16207' },
-            { id: 'pound', name: 'الجنيه الذهب', base: 59000, color: '#fbbf24' }
+            { id: '24', name: 'ذهب عيار 24', base: 8430 },
+            { id: '21', name: 'ذهب عيار 21', base: 7375 },
+            { id: '18', name: 'ذهب عيار 18', base: 6320 },
+            { id: 'pound', name: 'الجنيه الذهب', base: 59000 }
         ];
 
         const state = {};
@@ -144,12 +144,12 @@
         function initDashboard() {
             const grid = document.getElementById('dashboard-grid');
             KARATS.forEach(k => {
-                state[k.id] = { current: k.base, high: k.base, low: k.base };
+                state[k.id] = { current: k.base };
                 const card = document.createElement('div');
-                card.className = "gold-card rounded-[2rem] p-6 relative overflow-hidden group";
+                card.className = "gold-card rounded-[2rem] p-6";
                 card.innerHTML = `
                     <p class="text-[10px] text-zinc-500 font-black mb-1">${k.name}</p>
-                    <h3 id="price-${k.id}" class="text-3xl font-black text-white mono mb-4">${k.base.toLocaleString()}</h3>
+                    <h3 id="price-${k.id}" class="text-3xl font-black text-white mono">${k.base.toLocaleString()}</h3>
                 `;
                 grid.appendChild(card);
             });
@@ -158,13 +158,12 @@
         function startLiveFeed() {
             setInterval(() => {
                 KARATS.forEach(k => {
-                    const s = state[k.id];
-                    s.current += (Math.random() * 4) - 2;
+                    state[k.id].current += (Math.random() * 2) - 1;
                     const priceEl = document.getElementById(`price-${k.id}`);
-                    if(priceEl) priceEl.innerText = Math.round(s.current).toLocaleString();
+                    if(priceEl) priceEl.innerText = Math.round(state[k.id].current).toLocaleString();
                 });
                 document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
-            }, 2000);
+            }, 1000);
         }
 
         async function requestNotificationPermission() {
@@ -176,22 +175,29 @@
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
                 updateNotifyUI(true);
-                showToast("بدء إرسال التحديثات كل دقيقة...");
+                showToast("تم تفعيل التنبيهات كل 60 ثانية");
                 
-                // 1. CLEAR existing interval if any
                 if (notificationInterval) clearInterval(notificationInterval);
                 
-                // 2. SEND IMMEDIATE NOTIFICATION NOW
-                sendPriceNotification("تم تفعيل التنبيهات");
+                // First notification
+                sendPriceNotification("بدء التنبيهات");
                 
-                // 3. START 1 MINUTE LOOP
+                // Minute interval
                 notificationInterval = setInterval(() => {
-                    sendPriceNotification("تحديث دوري");
+                    sendPriceNotification("تحديث السعر");
                 }, 60000);
             } else {
                 updateNotifyUI(false);
                 toggleHelp();
             }
+        }
+
+        function testNotification() {
+            if (Notification.permission !== 'granted') {
+                showToast("يرجى تفعيل التنبيهات أولاً من الزر في الأعلى");
+                return;
+            }
+            sendPriceNotification("إشعار تجريبي");
         }
 
         function updateNotifyUI(active) {
@@ -203,38 +209,50 @@
             if (active) {
                 container.classList.add('border-green-500/50');
                 iconContainer.classList.add('bg-green-500/20', 'text-green-500');
-                iconContainer.classList.remove('bg-zinc-800', 'text-zinc-500');
-                statusText.innerText = "التحديث التلقائي نشط";
-                statusText.classList.add('text-green-500');
+                statusText.innerText = "التنبيهات نشطة";
                 icon.className = "fas fa-sync fa-spin";
             } else {
                 container.classList.remove('border-green-500/50');
                 iconContainer.classList.remove('bg-green-500/20', 'text-green-500');
-                iconContainer.classList.add('bg-zinc-800', 'text-zinc-500');
                 statusText.innerText = "تفعيل التنبيهات";
-                statusText.classList.remove('text-green-500');
                 icon.className = "fas fa-bell";
             }
         }
 
-        function sendPriceNotification(titlePrefix) {
+        function sendPriceNotification(title) {
             if (Notification.permission !== 'granted') return;
 
             const gold21 = Math.round(state['21'].current);
             const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
-            new Notification(`${titlePrefix}: عيار 21`, {
-                body: `السعر الآن: ${gold21} ج.م\nتوقيت التحديث: ${time}\nالإشعار القادم بعد 60 ثانية.`,
+            const options = {
+                body: `عيار 21: ${gold21} ج.م\nتوقيت: ${time}\nالتحديث القادم بعد دقيقة.`,
                 icon: "https://cdn-icons-png.flaticon.com/512/265/265682.png",
-                tag: 'price-update', // This ensures only ONE notification is visible at a time
-                renotify: true       // This makes the phone vibrate/sound for every update even if it's the same tag
-            });
+                tag: 'gold-price',
+                renotify: true
+            };
+
+            // Standard Notification
+            try {
+                new Notification(title, options);
+            } catch (e) {
+                // Fallback for some mobile browsers
+                if (navigator.serviceWorker) {
+                    navigator.serviceWorker.ready.then(reg => {
+                        reg.showNotification(title, options);
+                    });
+                }
+            }
+        }
+
+        // Register a dummy service worker for mobile notification support
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript;base64,' + btoa('self.addEventListener("notificationclick", e => e.notification.close());'));
         }
 
         window.onload = () => {
             initDashboard();
             startLiveFeed();
-            // Resume if already granted on load
             if (Notification.permission === 'granted') {
                 updateNotifyUI(true);
                 notificationInterval = setInterval(() => sendPriceNotification("تحديث دوري"), 60000);
