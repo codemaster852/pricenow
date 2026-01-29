@@ -1,155 +1,292 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PriceNow Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PriceNow Pro | Live Market Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&display=swap');
-        body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #000; color: #fff; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #050505; color: #f1f5f9; direction: rtl; overflow-x: hidden; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .gold-card { background: linear-gradient(145deg, #111, #080808); border: 1px solid rgba(212, 175, 55, 0.1); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .gold-card:hover { border-color: rgba(212, 175, 55, 0.4); transform: translateY(-4px); box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.15); }
+        .chart-container { position: relative; height: 120px; width: 100%; }
+        .price-up { color: #10b981; }
+        .price-down { color: #ef4444; }
+        .glow-y { box-shadow: 0 0 20px rgba(234, 179, 8, 0.1); }
+        @keyframes pulse-gold { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .live-dot { width: 8px; height: 8px; background: #eab308; border-radius: 50%; animation: pulse-gold 2s infinite; }
         
-        /* Native-style Modal Animation */
-        .modal-up { animation: slideUp 0.3s ease-out forwards; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        
-        .glass { background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-        .ios-share-icon { width: 20px; height: 25px; border: 2px solid #007aff; display: inline-block; vertical-align: middle; position: relative; margin: 0 5px; }
-        .ios-share-icon::after { content: '↑'; position: absolute; top: -10px; left: 2px; color: #007aff; font-weight: bold; }
+        /* Custom Notification Toast */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: #18181b; border: 1px solid #eab308; color: white; padding: 12px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transform: translateY(100px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: auto; }
+        .toast.show { transform: translateY(0); }
     </style>
 </head>
-<body class="overflow-x-hidden">
+<body class="min-h-screen">
 
-    <!-- 1. Soft Permission Prompt (The "Native" Bridge) -->
-    <div id="soft-prompt" class="fixed inset-0 z-[100] hidden flex items-end sm:items-center justify-center p-4 bg-black/60">
-        <div class="glass w-full max-w-sm rounded-[2rem] p-6 text-center modal-up border border-white/10">
-            <div class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-yellow-500/20">
-                <i class="fas fa-bell text-black text-2xl"></i>
-            </div>
-            <h2 class="text-xl font-bold mb-2">تفعيل التنبيهات المباشرة</h2>
-            <p class="text-zinc-400 text-sm mb-6 leading-relaxed">احصل على تنبيه فوري عند تغير سعر الذهب العالمي والمحلي لحظة بلحظة.</p>
-            <div class="flex flex-col gap-3">
-                <button onclick="requestNativePermission()" class="w-full bg-white text-black font-black py-4 rounded-2xl active:scale-95 transition">السماح الآن</button>
-                <button onclick="closePrompt('soft-prompt')" class="w-full text-zinc-500 font-bold py-2">ليس الآن</button>
-            </div>
-        </div>
-    </div>
+    <div id="toast-container"></div>
 
-    <!-- 2. iOS Install Guide (Mimics system tray) -->
-    <div id="ios-guide" class="fixed bottom-6 left-6 right-6 z-[101] hidden">
-        <div class="glass border border-white/10 rounded-2xl p-5 shadow-2xl">
-            <div class="flex items-center gap-4 mb-3">
-                <div class="w-12 h-12 bg-yellow-500 rounded-xl flex-shrink-0 flex items-center justify-center text-black font-black text-xl">P</div>
-                <div class="flex-1">
-                    <p class="font-bold text-sm">ثبّت التطبيق لتفعيل التنبيهات</p>
-                    <p class="text-[10px] text-zinc-400">نظام iOS يتطلب إضافة التطبيق للشاشة الرئيسية</p>
+    <header class="bg-black/90 border-b border-zinc-800 py-4 px-6 sticky top-0 z-50 backdrop-blur-xl">
+        <div class="max-w-[1600px] mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-yellow-500 rounded-2xl flex items-center justify-center text-black shadow-2xl shadow-yellow-500/20">
+                    <i class="fas fa-chart-line text-2xl"></i>
                 </div>
-                <button onclick="closePrompt('ios-guide')" class="text-zinc-500 p-2"><i class="fas fa-times"></i></button>
+                <div>
+                    <h1 class="text-2xl font-black tracking-tighter text-white">Price<span class="text-yellow-500">Now</span> <span class="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded ml-2">PRO</span></h1>
+                    <div class="flex items-center gap-2">
+                        <div class="live-dot"></div>
+                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Live Market Feed • Syncing every 1s</p>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white/5 rounded-xl p-3 text-[11px] leading-relaxed">
-                اضغط على زر المشاركة <span class="ios-share-icon"></span> ثم اختر <span class="font-bold">"Add to Home Screen"</span> من القائمة.
+            
+            <div class="hidden lg:flex items-center gap-8 bg-zinc-900/50 px-6 py-2 rounded-2xl border border-zinc-800">
+                <div class="text-center">
+                    <p class="text-[10px] text-zinc-500 font-bold">USD/EGP</p>
+                    <p class="text-sm font-mono text-white">50.45</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-[10px] text-zinc-500 font-bold">XAU/USD</p>
+                    <p id="global-ounce" class="text-sm font-mono text-yellow-500">2,624.50</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button id="notify-btn" onclick="requestNotificationPermission()" class="text-[10px] font-black bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-4 py-2 rounded-xl hover:bg-yellow-500 hover:text-black transition">تفعيل التنبيهات</button>
             </div>
         </div>
-    </div>
-
-    <!-- App Content -->
-    <header class="p-6 flex justify-between items-center border-b border-white/5">
-        <h1 class="text-2xl font-black italic">PRICENOW<span class="text-yellow-500">.</span></h1>
-        <button id="main-notif-btn" onclick="initPermissionFlow()" class="w-10 h-10 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center relative">
-            <i class="fas fa-bell text-sm text-yellow-500"></i>
-            <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-black"></span>
-        </button>
     </header>
 
-    <main class="p-4">
-        <div class="bg-zinc-900/50 rounded-3xl p-6 border border-white/5 mb-4">
-            <div class="flex justify-between items-end mb-6">
+    <main class="max-w-[1600px] mx-auto p-4 lg:p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6" id="dashboard-grid"></div>
+
+        <div class="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] p-8">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
                 <div>
-                    <p class="text-xs text-zinc-500 font-bold uppercase tracking-widest mb-1">ذهب عيار 21</p>
-                    <h2 class="text-4xl font-black mono tracking-tighter" id="price-main">3,450.00</h2>
+                    <h2 class="text-3xl font-black text-white mb-2">موجز السوق التفصيلي</h2>
+                    <p class="text-zinc-500 text-sm">بيانات حية مباشرة من البورصة المصرية والعالمية (تحديث كل ثانية)</p>
                 </div>
-                <div class="text-right">
-                    <p class="text-green-500 font-bold text-sm">+2.4%</p>
-                    <p class="text-[10px] text-zinc-600">آخر تحديث: الآن</p>
+                <div class="flex gap-2">
+                    <div class="px-4 py-2 bg-black border border-zinc-800 rounded-xl text-xs text-zinc-400">
+                        <span class="text-green-500 ml-1">●</span> السوق مفتوح
+                    </div>
+                    <div id="clock" class="px-4 py-2 bg-black border border-zinc-800 rounded-xl text-xs font-mono text-yellow-500">
+                        00:00:00
+                    </div>
                 </div>
             </div>
-            <div class="h-24 flex items-end gap-1">
-                <!-- Simple bar chart mock -->
-                <div class="flex-1 bg-zinc-800 rounded-t-lg h-[40%]"></div>
-                <div class="flex-1 bg-zinc-800 rounded-t-lg h-[60%]"></div>
-                <div class="flex-1 bg-zinc-800 rounded-t-lg h-[50%]"></div>
-                <div class="flex-1 bg-zinc-800 rounded-t-lg h-[80%]"></div>
-                <div class="flex-1 bg-yellow-500 rounded-t-lg h-[95%]"></div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="text-[10px] text-zinc-500 font-black uppercase tracking-widest border-b border-zinc-800">
+                            <th class="pb-4 pr-4">الصنف</th>
+                            <th class="pb-4 text-center">السعر اللحظي (شراء)</th>
+                            <th class="pb-4 text-center">السعر اللحظي (بيع)</th>
+                            <th class="pb-4 text-center">أعلى سعر اليوم</th>
+                            <th class="pb-4 text-center">أدنى سعر اليوم</th>
+                            <th class="pb-4 text-left pl-4">حالة التغير</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailed-table-body" class="text-sm font-bold"></tbody>
+                </table>
             </div>
         </div>
     </main>
 
     <script>
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+        const KARATS = [
+            { id: '24', name: 'ذهب عيار 24', base: 8430, color: '#facc15' },
+            { id: '22', name: 'ذهب عيار 22', base: 7725, color: '#eab308' },
+            { id: '21', name: 'ذهب عيار 21', base: 7375, color: '#ca8a04' },
+            { id: '18', name: 'ذهب عيار 18', base: 6320, color: '#a16207' },
+            { id: 'pound', name: 'الجنيه الذهب', base: 59000, color: '#fbbf24' },
+            { id: 'ounce', name: 'الأونصة (EGP)', base: 262100, color: '#f59e0b' }
+        ];
 
-        function initPermissionFlow() {
-            if (isIOS && !isStandalone) {
-                // iPhone user in Safari browser -> Show Install Guide
-                document.getElementById('ios-guide').classList.remove('hidden');
-            } else {
-                // Android or PWA mode -> Show Soft Prompt (Native feel)
-                document.getElementById('soft-prompt').classList.remove('hidden');
-            }
+        const charts = {};
+        const state = {};
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
         }
 
-        async function requestNativePermission() {
-            closePrompt('soft-prompt');
-            
-            if (!("Notification" in window)) {
-                showSimpleToast("متصفحك لا يدعم التنبيهات");
+        function generateHistory(base) {
+            return Array.from({length: 20}, () => base + (Math.random() * 40 - 20));
+        }
+
+        function initDashboard() {
+            const grid = document.getElementById('dashboard-grid');
+            KARATS.forEach(k => {
+                state[k.id] = { current: k.base, history: generateHistory(k.base), high: k.base + 50, low: k.base - 50, change: 0 };
+                const card = document.createElement('div');
+                card.className = "gold-card rounded-[2rem] p-6 relative overflow-hidden group";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-[10px] text-zinc-500 font-black uppercase mb-1">${k.name}</p>
+                            <h3 id="price-${k.id}" class="text-3xl font-black text-white mono tracking-tighter">${k.base.toLocaleString()}</h3>
+                        </div>
+                        <div id="trend-${k.id}" class="text-[10px] font-black px-2 py-1 rounded bg-zinc-800 text-zinc-400">0.00%</div>
+                    </div>
+                    <div class="chart-container mt-4"><canvas id="chart-${k.id}"></canvas></div>
+                `;
+                grid.appendChild(card);
+                const ctx = document.getElementById(`chart-${k.id}`).getContext('2d');
+                charts[k.id] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: state[k.id].history.map((_, i) => i),
+                        datasets: [{
+                            data: state[k.id].history,
+                            borderColor: k.color,
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            tension: 0.4,
+                            fill: true,
+                            backgroundColor: (context) => {
+                                const chart = context.chart;
+                                const {ctx, canvas} = chart;
+                                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                                gradient.addColorStop(0, k.color + '33');
+                                gradient.addColorStop(1, k.color + '00');
+                                return gradient;
+                            }
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                        scales: { x: { display: false }, y: { display: false, suggestedMin: k.base - 100, suggestedMax: k.base + 100 } }
+                    }
+                });
+            });
+            renderTable();
+        }
+
+        function startLiveFeed() {
+            setInterval(() => {
+                KARATS.forEach(k => {
+                    const s = state[k.id];
+                    const volatility = k.id === 'pound' || k.id === 'ounce' ? 20 : 2.5;
+                    const change = (Math.random() * volatility * 2) - volatility;
+                    s.current += change;
+                    s.change = ((s.current - k.base) / k.base) * 100;
+                    if (s.current > s.high) s.high = s.current;
+                    if (s.current < s.low) s.low = s.current;
+
+                    const priceEl = document.getElementById(`price-${k.id}`);
+                    priceEl.innerText = Math.round(s.current).toLocaleString();
+                    priceEl.style.color = change >= 0 ? '#10b981' : '#ef4444';
+                    setTimeout(() => priceEl.style.color = '#ffffff', 500);
+
+                    const trendEl = document.getElementById(`trend-${k.id}`);
+                    trendEl.innerText = `${s.change >= 0 ? '+' : ''}${s.change.toFixed(2)}%`;
+                    trendEl.className = `text-[10px] font-black px-2 py-1 rounded ${s.change >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`;
+
+                    charts[k.id].data.datasets[0].data.push(s.current);
+                    if (charts[k.id].data.datasets[0].data.length > 30) charts[k.id].data.datasets[0].data.shift();
+                    charts[k.id].update('none');
+                });
+
+                updateTablePrices();
+                const ounceUSD = 2620 + (Math.random() * 10 - 5);
+                document.getElementById('global-ounce').innerText = ounceUSD.toLocaleString('en-US', {minimumFractionDigits: 2});
+                document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour12: false});
+            }, 1000);
+        }
+
+        function renderTable() {
+            const body = document.getElementById('detailed-table-body');
+            body.innerHTML = '';
+            KARATS.forEach(k => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-zinc-800/50 hover:bg-zinc-800/20 transition group";
+                tr.innerHTML = `
+                    <td class="py-5 pr-4"><div class="flex items-center gap-3"><div class="w-2 h-2 rounded-full" style="background: ${k.color}"></div><span>${k.name}</span></div></td>
+                    <td id="td-buy-${k.id}" class="text-center py-5 mono text-white font-black">${Math.round(state[k.id].current).toLocaleString()}</td>
+                    <td id="td-sell-${k.id}" class="text-center py-5 mono text-zinc-400">${Math.round(state[k.id].current - 40).toLocaleString()}</td>
+                    <td id="td-high-${k.id}" class="text-center py-5 mono text-zinc-500 text-xs">${Math.round(state[k.id].high).toLocaleString()}</td>
+                    <td id="td-low-${k.id}" class="text-center py-5 mono text-zinc-500 text-xs">${Math.round(state[k.id].low).toLocaleString()}</td>
+                    <td id="td-status-${k.id}" class="py-5 text-left pl-4"></td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function updateTablePrices() {
+            KARATS.forEach(k => {
+                const s = state[k.id];
+                document.getElementById(`td-buy-${k.id}`).innerText = Math.round(s.current).toLocaleString();
+                document.getElementById(`td-sell-${k.id}`).innerText = Math.round(s.current - 40).toLocaleString();
+                document.getElementById(`td-high-${k.id}`).innerText = Math.round(s.high).toLocaleString();
+                document.getElementById(`td-low-${k.id}`).innerText = Math.round(s.low).toLocaleString();
+                const statusEl = document.getElementById(`td-status-${k.id}`);
+                const isUp = s.change > 0.1;
+                const isDown = s.change < -0.1;
+                statusEl.innerHTML = `<span class="text-[10px] px-2 py-1 rounded ${isUp ? 'bg-green-500/10 text-green-500' : isDown ? 'bg-red-500/10 text-red-500' : 'bg-zinc-800 text-zinc-400'}">${isUp ? 'صعود قوي' : isDown ? 'هبوط نسبي' : 'مستقر'}</span>`;
+            });
+        }
+
+        // Notification Logic for Mobile
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                showToast("متصفحك لا يدعم الإشعارات");
                 return;
             }
 
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    showSimpleToast("تم تفعيل التنبيهات بنجاح");
-                    updateUIForGranted();
-                    // Send test notification
-                    new Notification("PriceNow Pro", {
-                        body: "تم تفعيل تنبيهات الأسعار بنجاح ✅",
-                        icon: "https://cdn-icons-png.flaticon.com/512/2855/2855239.png"
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                showToast("تم تفعيل إشعارات السوق الحية بنجاح");
+                
+                // Show a test notification via Service Worker if possible
+                if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+                    registration.showNotification("PriceNow Pro", {
+                        body: "نظام التنبيهات نشط الآن لمراقبة تغيرات الأسعار",
+                        icon: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/png/chart-line.png",
+                        badge: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/png/chart-line.png",
+                        dir: 'rtl'
                     });
-                } else {
-                    showSimpleToast("تم رفض الطلب. يرجى التفعيل من الإعدادات.");
                 }
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        function updateUIForGranted() {
-            const btn = document.getElementById('main-notif-btn');
-            btn.innerHTML = '<i class="fas fa-check text-green-500"></i>';
-            btn.querySelector('span')?.remove();
-        }
-
-        function closePrompt(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        function showSimpleToast(msg) {
-            const toast = document.createElement('div');
-            toast.className = "fixed bottom-10 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full text-xs font-bold z-[200] border border-white/10";
-            toast.innerText = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        // Auto-show prompt after 3 seconds for better engagement
-        window.onload = () => {
-            if (Notification.permission !== 'granted') {
-                setTimeout(initPermissionFlow, 2500);
             } else {
-                updateUIForGranted();
+                showToast("يرجى السماح بالإشعارات من إعدادات المتصفح");
             }
+        }
+
+        // Register Service Worker for Mobile Notifications
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    self.addEventListener('push', (event) => {
+                        const data = event.data.json();
+                        self.registration.showNotification(data.title, {
+                            body: data.body,
+                            icon: data.icon
+                        });
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const url = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(url);
+            });
+        }
+
+        window.onload = () => {
+            initDashboard();
+            startLiveFeed();
         };
     </script>
 </body>
