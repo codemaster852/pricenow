@@ -49,6 +49,7 @@
                     <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
                         <li>1. تأكد أنك لا تستخدم متصفح <b>Incognito</b> (التصفح الخفي لا يدعم الإشعارات).</li>
                         <li>2. تأكد من إغلاق وضع <b>Focus Mode</b> في ويندوز 10/11 أو ماك.</li>
+                        <li>3. قد يمنع المتصفح الإشعارات إذا لم تتفاعل مع الصفحة أولاً.</li>
                     </ul>
                 </div>
                 <div class="bg-black/40 p-6 rounded-3xl border border-zinc-800">
@@ -172,23 +173,25 @@
                 return;
             }
 
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                updateNotifyUI(true);
-                showToast("تم تفعيل التنبيهات كل 60 ثانية");
-                
-                if (notificationInterval) clearInterval(notificationInterval);
-                
-                // First notification
-                sendPriceNotification("بدء التنبيهات");
-                
-                // Minute interval
-                notificationInterval = setInterval(() => {
-                    sendPriceNotification("تحديث السعر");
-                }, 60000);
-            } else {
-                updateNotifyUI(false);
-                toggleHelp();
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    updateNotifyUI(true);
+                    showToast("تم تفعيل التنبيهات كل 60 ثانية");
+                    
+                    if (notificationInterval) clearInterval(notificationInterval);
+                    
+                    sendPriceNotification("بدء التنبيهات");
+                    notificationInterval = setInterval(() => {
+                        sendPriceNotification("تحديث السعر");
+                    }, 60000);
+                } else {
+                    updateNotifyUI(false);
+                    toggleHelp();
+                }
+            } catch (err) {
+                console.error("Permission request failed", err);
+                showToast("فشل طلب الإذن. تحقق من إعدادات المتصفح.");
             }
         }
 
@@ -232,22 +235,39 @@
                 renotify: true
             };
 
-            // Standard Notification
+            // Try standard notification first
             try {
-                new Notification(title, options);
+                const n = new Notification(title, options);
             } catch (e) {
-                // Fallback for some mobile browsers
-                if (navigator.serviceWorker) {
-                    navigator.serviceWorker.ready.then(reg => {
-                        reg.showNotification(title, options);
+                // If it fails (like on mobile), try via Service Worker
+                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'SHOW_NOTIFICATION',
+                        title: title,
+                        options: options
                     });
                 }
             }
         }
 
-        // Register a dummy service worker for mobile notification support
+        // Improved Service Worker registration using Blob
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('data:text/javascript;base64,' + btoa('self.addEventListener("notificationclick", e => e.notification.close());'));
+            const swCode = `
+                self.addEventListener('message', event => {
+                    if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+                        self.registration.showNotification(event.data.title, event.data.options);
+                    }
+                });
+                self.addEventListener('notificationclick', event => {
+                    event.notification.close();
+                });
+            `;
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl).catch(err => {
+                console.warn("ServiceWorker registration failed:", err);
+            });
         }
 
         window.onload = () => {
