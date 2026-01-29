@@ -14,11 +14,6 @@
         .gold-card { background: linear-gradient(145deg, #111, #080808); border: 1px solid rgba(212, 175, 55, 0.1); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .gold-card:hover { border-color: rgba(212, 175, 55, 0.4); transform: translateY(-4px); box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.15); }
         .chart-container { position: relative; height: 120px; width: 100%; }
-        .price-up { color: #10b981; }
-        .price-down { color: #ef4444; }
-        .glow-y { box-shadow: 0 0 20px rgba(234, 179, 8, 0.1); }
-        @keyframes pulse-gold { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .live-dot { width: 8px; height: 8px; background: #eab308; border-radius: 50%; animation: pulse-gold 2s infinite; }
         
         #toast-container { position: fixed; bottom: 20px; right: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: #18181b; border: 1px solid #eab308; color: white; padding: 12px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transform: translateY(100px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: auto; }
@@ -26,18 +21,24 @@
 
         #help-modal { display: none; }
         #help-modal.active { display: flex; }
+
+        @keyframes pulse-gold { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.1); } }
+        .live-dot { width: 8px; height: 8px; background: #eab308; border-radius: 50%; animation: pulse-gold 2s infinite; }
+        
+        .btn-notify-active { background: #10b981 !important; color: white !important; border-color: #10b981 !important; }
     </style>
 </head>
 <body class="min-h-screen">
 
     <div id="toast-container"></div>
 
+    <!-- Help Modal -->
     <div id="help-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-start mb-6">
                 <div>
                     <h3 class="text-2xl font-black text-yellow-500">حل مشكلة الإشعارات</h3>
-                    <p class="text-zinc-500 text-sm mt-1">إذا قمت بالسماح ولم تصلك رسائل، اتبع الخطوات التالية:</p>
+                    <p class="text-zinc-500 text-sm mt-1">اتبع الخطوات التالية لتفعيل التنبيهات التلقائية:</p>
                 </div>
                 <button onclick="toggleHelp()" class="text-zinc-500 hover:text-white p-2"><i class="fas fa-times text-xl"></i></button>
             </div>
@@ -51,11 +52,11 @@
                     <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
                         <li class="flex gap-3">
                             <span class="text-yellow-500 font-bold">1.</span>
-                            <span>تأكد أن وضع <b>"عدم الإزعاج"</b> (Do Not Disturb) في ويندوز أو ماك مغلق.</span>
+                            <span>اضغط على <b>أيقونة القفل</b> (🔒) بجانب الرابط.</span>
                         </li>
                         <li class="flex gap-3">
                             <span class="text-yellow-500 font-bold">2.</span>
-                            <span>اضغط على أيقونة القفل (🔒) وتأكد أن "الإشعارات" مفعلة.</span>
+                            <span>تأكد أن <b>"الإشعارات"</b> في حالة "سماح" (Allow).</span>
                         </li>
                     </ul>
                 </div>
@@ -68,23 +69,17 @@
                     <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
                         <li class="flex gap-3">
                             <span class="text-yellow-500 font-bold">1.</span>
-                            <span>يجب إضافة الموقع للشاشة الرئيسية أولاً (Add to Home Screen).</span>
+                            <span>افتح القائمة واختر <b>"إضافة للشاشة الرئيسية"</b>.</span>
                         </li>
                         <li class="flex gap-3">
                             <span class="text-yellow-500 font-bold">2.</span>
-                            <span>اذهب لإعدادات الآيفون -> الإشعارات -> ابحث عن أيقونة الموقع وفعل التنبيهات.</span>
+                            <span>افتح الموقع من الشاشة الرئيسية واضغط على زر الجرس.</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <div class="mt-8 bg-yellow-500/10 border border-yellow-500/20 p-6 rounded-3xl">
-                <p class="text-xs text-zinc-400 text-center">
-                    <b>ملاحظة:</b> الموقع يقوم الآن بإرسال تحديث تلقائي كل 60 ثانية للأسعار.
-                </p>
-            </div>
-
-            <button onclick="location.reload()" class="w-full mt-8 bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 transition shadow-xl shadow-yellow-500/10">إعادة تشغيل النظام</button>
+            <button onclick="location.reload()" class="w-full mt-8 bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 transition">تحديث الصفحة</button>
         </div>
     </div>
 
@@ -95,18 +90,29 @@
                     <i class="fas fa-chart-line text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black tracking-tighter text-white">Price<span class="text-yellow-500">Now</span> <span class="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded ml-2">PRO</span></h1>
+                    <h1 class="text-2xl font-black tracking-tighter text-white">Price<span class="text-yellow-500">Now</span> <span class="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded ml-2 uppercase font-bold">Pro Live</span></h1>
                     <div class="flex items-center gap-2">
                         <div class="live-dot"></div>
-                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Live Market Feed • Updates every 1m</p>
+                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Live Updates every 1m</p>
                     </div>
                 </div>
             </div>
             
-            <div class="hidden lg:flex items-center gap-3">
-                <button id="notify-status" class="px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-[10px] font-bold text-zinc-500">تنبيهات الدقيقة: معطلة</button>
-                <button id="notify-btn" onclick="requestNotificationPermission()" class="text-[10px] font-black bg-yellow-500 text-black px-4 py-2 rounded-xl hover:bg-yellow-400 transition">تفعيل التنبيهات التلقائية</button>
-                <button onclick="toggleHelp()" class="text-zinc-500 hover:text-white px-2 transition"><i class="fas fa-question-circle text-lg"></i></button>
+            <div class="flex items-center gap-4">
+                <!-- Main Notification Button -->
+                <button id="notify-btn" onclick="requestNotificationPermission()" class="group flex items-center gap-3 bg-zinc-900 border border-zinc-800 hover:border-yellow-500/50 px-5 py-2.5 rounded-2xl transition-all duration-300">
+                    <div id="notify-icon-container" class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-500 group-hover:text-yellow-500 transition-colors">
+                        <i id="notify-icon" class="fas fa-bell"></i>
+                    </div>
+                    <div class="text-right">
+                        <p id="notify-label" class="text-[10px] font-black text-zinc-500 uppercase leading-none mb-1">التنبيهات اللحظية</p>
+                        <p id="notify-status-text" class="text-xs font-bold text-white leading-none">تفعيل التنبيهات</p>
+                    </div>
+                </button>
+                
+                <button onclick="toggleHelp()" class="w-10 h-10 flex items-center justify-center text-zinc-500 hover:text-white bg-zinc-900/50 border border-zinc-800 rounded-xl transition">
+                    <i class="fas fa-question-circle"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -117,8 +123,8 @@
         <div class="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] p-8">
             <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
                 <div>
-                    <h2 class="text-3xl font-black text-white mb-2">موجز السوق التفصيلي</h2>
-                    <p class="text-zinc-500 text-sm">يتم إرسال إشعار لسعر الذهب عيار 21 كل دقيقة في الخلفية</p>
+                    <h2 class="text-3xl font-black text-white mb-2">موجز السوق</h2>
+                    <p class="text-zinc-500 text-sm">يتم إرسال إشعار بسعر الذهب عيار 21 كل دقيقة في الخلفية عند تفعيل الزر أعلاه</p>
                 </div>
                 <div id="clock" class="px-4 py-2 bg-black border border-zinc-800 rounded-xl text-xs font-mono text-yellow-500">00:00:00</div>
             </div>
@@ -197,7 +203,6 @@
                     const s = state[k.id];
                     const change = (Math.random() * 4) - 2;
                     s.current += change;
-                    s.change = ((s.current - k.base) / k.base) * 100;
                     if (s.current > s.high) s.high = s.current;
                     if (s.current < s.low) s.low = s.current;
 
@@ -246,20 +251,38 @@
 
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
-                showToast("تم التفعيل. ستصلك رسالة بالأسعار كل دقيقة.");
-                document.getElementById('notify-status').innerText = "تنبيهات الدقيقة: نشطة ✅";
-                document.getElementById('notify-status').classList.add('text-green-500');
+                updateNotifyUI(true);
+                showToast("تم تفعيل التنبيهات بنجاح.");
                 
-                // Set up the interval for 1 minute (60000 ms)
                 if (notificationInterval) clearInterval(notificationInterval);
-                
-                // Send immediate notification
                 sendPriceNotification();
-                
-                // Start the loop
                 notificationInterval = setInterval(sendPriceNotification, 60000);
             } else {
+                updateNotifyUI(false);
                 toggleHelp();
+            }
+        }
+
+        function updateNotifyUI(active) {
+            const container = document.getElementById('notify-btn');
+            const iconContainer = document.getElementById('notify-icon-container');
+            const statusText = document.getElementById('notify-status-text');
+            const icon = document.getElementById('notify-icon');
+
+            if (active) {
+                container.classList.add('border-green-500/50');
+                iconContainer.classList.add('bg-green-500/20', 'text-green-500');
+                iconContainer.classList.remove('bg-zinc-800', 'text-zinc-500');
+                statusText.innerText = "التنبيهات مفعلة";
+                statusText.classList.add('text-green-500');
+                icon.className = "fas fa-bell-on";
+            } else {
+                container.classList.remove('border-green-500/50');
+                iconContainer.classList.remove('bg-green-500/20', 'text-green-500');
+                iconContainer.classList.add('bg-zinc-800', 'text-zinc-500');
+                statusText.innerText = "تفعيل التنبيهات";
+                statusText.classList.remove('text-green-500');
+                icon.className = "fas fa-bell";
             }
         }
 
@@ -269,35 +292,20 @@
             const gold21 = Math.round(state['21'].current);
             const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
-            const notification = new Notification("تحديث الذهب اللحظي", {
-                body: `سعر عيار 21 الآن: ${gold21} ج.م\nالتوقيت: ${time}`,
+            new Notification("تحديث الذهب: عيار 21", {
+                body: `السعر الحالي: ${gold21} ج.م\nتم التحديث في ${time}`,
                 icon: "https://cdn-icons-png.flaticon.com/512/265/265682.png",
-                tag: 'price-update' // Prevents multiple notifications stacking
-            });
-
-            // For mobile compatibility via Service Worker if available
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then(registration => {
-                    registration.showNotification("PriceNow Pro Update", {
-                        body: `عيار 21: ${gold21} ج.م | ${time}`,
-                        tag: 'price-update',
-                        renotify: true
-                    });
-                });
-            }
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const swCode = `self.addEventListener('push', (e) => {});`;
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                navigator.serviceWorker.register(URL.createObjectURL(blob));
+                tag: 'price-update'
             });
         }
 
         window.onload = () => {
             initDashboard();
             startLiveFeed();
+            if (Notification.permission === 'granted') {
+                updateNotifyUI(true);
+                notificationInterval = setInterval(sendPriceNotification, 60000);
+            }
         };
     </script>
 </body>
