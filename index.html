@@ -34,8 +34,8 @@
         <div class="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-start mb-6">
                 <div>
-                    <h3 class="text-2xl font-black text-yellow-500">لماذا لا تصل الإشعارات؟</h3>
-                    <p class="text-zinc-500 text-sm mt-1">اتبع هذه الحلول التقنية:</p>
+                    <h3 class="text-2xl font-black text-yellow-500">دليل تشغيل الإشعارات</h3>
+                    <p class="text-zinc-500 text-sm mt-1">إذا لم تظهر التنبيهات، جرب الآتي:</p>
                 </div>
                 <button onclick="toggleHelp()" class="text-zinc-500 hover:text-white p-2"><i class="fas fa-times text-xl"></i></button>
             </div>
@@ -44,26 +44,25 @@
                 <div class="bg-black/40 p-6 rounded-3xl border border-zinc-800">
                     <div class="flex items-center gap-3 mb-4">
                         <i class="fab fa-chrome text-xl text-yellow-500"></i>
-                        <h4 class="font-bold text-white">متصفح الكمبيوتر</h4>
+                        <h4 class="font-bold text-white">إعدادات المتصفح</h4>
                     </div>
                     <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
-                        <li>1. تأكد أنك لا تستخدم متصفح <b>Incognito</b> (التصفح الخفي لا يدعم الإشعارات).</li>
-                        <li>2. تأكد من إغلاق وضع <b>Focus Mode</b> في ويندوز 10/11 أو ماك.</li>
-                        <li>3. قد يمنع المتصفح الإشعارات إذا لم تتفاعل مع الصفحة أولاً.</li>
+                        <li>تأكد أن القفل (🔒) بجانب الرابط يظهر أن الإشعارات "Allowed".</li>
+                        <li>بعض المتصفحات تمنع الإشعارات التلقائية إلا إذا قمت بالضغط على أي مكان في الصفحة أولاً.</li>
                     </ul>
                 </div>
                 <div class="bg-black/40 p-6 rounded-3xl border border-zinc-800">
                     <div class="flex items-center gap-3 mb-4">
-                        <i class="fab fa-apple text-xl text-zinc-400"></i>
-                        <h4 class="font-bold text-white">آيفون (iOS)</h4>
+                        <i class="fas fa-bell-slash text-xl text-zinc-400"></i>
+                        <h4 class="font-bold text-white">نظام التشغيل</h4>
                     </div>
                     <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
-                        <li>1. اضغط "Share" ثم <b>"Add to Home Screen"</b>.</li>
-                        <li>2. افتح التطبيق من الشاشة الرئيسية، وإلا لن تعمل الإشعارات أبداً.</li>
+                        <li>ويندوز/ماك: تأكد من إيقاف <b>Do Not Disturb</b>.</li>
+                        <li>آيفون: يجب إضافة الموقع للشاشة الرئيسية (Add to Home Screen) لتعمل الإشعارات.</li>
                     </ul>
                 </div>
             </div>
-            <button onclick="location.reload()" class="w-full mt-8 bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 transition">إعادة تحميل الصفحة</button>
+            <button onclick="location.reload()" class="w-full mt-8 bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 transition">إعادة تشغيل النظام</button>
         </div>
     </div>
 
@@ -77,7 +76,7 @@
                     <h1 class="text-2xl font-black tracking-tighter text-white">Price<span class="text-yellow-500">Now</span></h1>
                     <div class="flex items-center gap-2">
                         <div class="live-dot"></div>
-                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Updates every 60s</p>
+                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Live Terminal</p>
                     </div>
                 </div>
             </div>
@@ -103,11 +102,11 @@
 
         <div class="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] p-8 text-center md:text-right">
             <h2 class="text-3xl font-black text-white mb-2">تنبيهات السعر التلقائية</h2>
-            <p class="text-zinc-500 text-sm mb-6">إذا لم يعمل التنبيه بعد التفعيل، جرب زر الاختبار أدناه:</p>
+            <p class="text-zinc-500 text-sm mb-6">يتم إرسال إشعار فوري عند الضغط، ثم تحديث كل دقيقة.</p>
             
             <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-6">
                 <button onclick="testNotification()" class="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold hover:bg-white/10 transition">
-                    إرسال إشعار تجريبي الآن
+                    إرسال إشعار تجريبي
                 </button>
                 <div id="clock" class="px-4 py-3 bg-black border border-zinc-800 rounded-xl text-xs font-mono text-yellow-500">00:00:00</div>
             </div>
@@ -148,10 +147,7 @@
                 state[k.id] = { current: k.base };
                 const card = document.createElement('div');
                 card.className = "gold-card rounded-[2rem] p-6";
-                card.innerHTML = `
-                    <p class="text-[10px] text-zinc-500 font-black mb-1">${k.name}</p>
-                    <h3 id="price-${k.id}" class="text-3xl font-black text-white mono">${k.base.toLocaleString()}</h3>
-                `;
+                card.innerHTML = `<p class="text-[10px] text-zinc-500 font-black mb-1">${k.name}</p><h3 id="price-${k.id}" class="text-3xl font-black text-white mono">${k.base.toLocaleString()}</h3>`;
                 grid.appendChild(card);
             });
         }
@@ -173,34 +169,32 @@
                 return;
             }
 
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    updateNotifyUI(true);
-                    showToast("تم تفعيل التنبيهات كل 60 ثانية");
-                    
-                    if (notificationInterval) clearInterval(notificationInterval);
-                    
-                    sendPriceNotification("بدء التنبيهات");
-                    notificationInterval = setInterval(() => {
-                        sendPriceNotification("تحديث السعر");
-                    }, 60000);
-                } else {
-                    updateNotifyUI(false);
-                    toggleHelp();
-                }
-            } catch (err) {
-                console.error("Permission request failed", err);
-                showToast("فشل طلب الإذن. تحقق من إعدادات المتصفح.");
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                updateNotifyUI(true);
+                showToast("تم تفعيل التنبيهات كل 60 ثانية");
+                
+                if (notificationInterval) clearInterval(notificationInterval);
+                
+                // Immediate notification
+                sendPriceNotification("بدء التنبيهات");
+                
+                // Recurring notification every 60s
+                notificationInterval = setInterval(() => {
+                    sendPriceNotification("تحديث دوري للسعر");
+                }, 60000);
+            } else {
+                updateNotifyUI(false);
+                toggleHelp();
             }
         }
 
         function testNotification() {
             if (Notification.permission !== 'granted') {
-                showToast("يرجى تفعيل التنبيهات أولاً من الزر في الأعلى");
+                showToast("يرجى تفعيل التنبيهات أولاً");
                 return;
             }
-            sendPriceNotification("إشعار تجريبي");
+            sendPriceNotification("إشعار تجريبي ناجح");
         }
 
         function updateNotifyUI(active) {
@@ -229,54 +223,23 @@
             const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
             const options = {
-                body: `عيار 21: ${gold21} ج.م\nتوقيت: ${time}\nالتحديث القادم بعد دقيقة.`,
+                body: `عيار 21 الآن: ${gold21} ج.م\nتوقيت: ${time}\nالتحديث القادم بعد دقيقة.`,
                 icon: "https://cdn-icons-png.flaticon.com/512/265/265682.png",
-                tag: 'gold-price',
+                tag: 'gold-price-update',
                 renotify: true
             };
 
-            // Try standard notification first
+            // Using standard Notification constructor (supported by all major desktop browsers)
             try {
-                const n = new Notification(title, options);
+                new Notification(title, options);
             } catch (e) {
-                // If it fails (like on mobile), try via Service Worker
-                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                    navigator.serviceWorker.controller.postMessage({
-                        type: 'SHOW_NOTIFICATION',
-                        title: title,
-                        options: options
-                    });
-                }
+                console.warn("Notification failed, browser might require Service Worker for this feature.");
             }
-        }
-
-        // Improved Service Worker registration using Blob
-        if ('serviceWorker' in navigator) {
-            const swCode = `
-                self.addEventListener('message', event => {
-                    if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
-                        self.registration.showNotification(event.data.title, event.data.options);
-                    }
-                });
-                self.addEventListener('notificationclick', event => {
-                    event.notification.close();
-                });
-            `;
-            const blob = new Blob([swCode], { type: 'application/javascript' });
-            const swUrl = URL.createObjectURL(blob);
-            
-            navigator.serviceWorker.register(swUrl).catch(err => {
-                console.warn("ServiceWorker registration failed:", err);
-            });
         }
 
         window.onload = () => {
             initDashboard();
             startLiveFeed();
-            if (Notification.permission === 'granted') {
-                updateNotifyUI(true);
-                notificationInterval = setInterval(() => sendPriceNotification("تحديث دوري"), 60000);
-            }
         };
     </script>
 </body>
