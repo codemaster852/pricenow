@@ -24,8 +24,6 @@
 
         @keyframes pulse-gold { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.1); } }
         .live-dot { width: 8px; height: 8px; background: #eab308; border-radius: 50%; animation: pulse-gold 2s infinite; }
-        
-        .btn-notify-active { background: #10b981 !important; color: white !important; border-color: #10b981 !important; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -38,7 +36,7 @@
             <div class="flex justify-between items-start mb-6">
                 <div>
                     <h3 class="text-2xl font-black text-yellow-500">حل مشكلة الإشعارات</h3>
-                    <p class="text-zinc-500 text-sm mt-1">اتبع الخطوات التالية لتفعيل التنبيهات التلقائية:</p>
+                    <p class="text-zinc-500 text-sm mt-1">إذا لم تصلك الإشعارات فوراً، تأكد من:</p>
                 </div>
                 <button onclick="toggleHelp()" class="text-zinc-500 hover:text-white p-2"><i class="fas fa-times text-xl"></i></button>
             </div>
@@ -47,39 +45,29 @@
                 <div class="bg-black/40 p-6 rounded-3xl border border-zinc-800">
                     <div class="flex items-center gap-3 mb-4">
                         <i class="fab fa-chrome text-xl text-yellow-500"></i>
-                        <h4 class="font-bold text-white">متصفحات الكمبيوتر</h4>
+                        <h4 class="font-bold text-white">إعدادات الموقع</h4>
                     </div>
                     <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
                         <li class="flex gap-3">
                             <span class="text-yellow-500 font-bold">1.</span>
-                            <span>اضغط على <b>أيقونة القفل</b> (🔒) بجانب الرابط.</span>
-                        </li>
-                        <li class="flex gap-3">
-                            <span class="text-yellow-500 font-bold">2.</span>
-                            <span>تأكد أن <b>"الإشعارات"</b> في حالة "سماح" (Allow).</span>
+                            <span>اضغط على أيقونة القفل (🔒) وتأكد أن <b>الإشعارات</b> مفعلة.</span>
                         </li>
                     </ul>
                 </div>
-
                 <div class="bg-black/40 p-6 rounded-3xl border border-zinc-800">
                     <div class="flex items-center gap-3 mb-4">
-                        <i class="fab fa-apple text-xl text-zinc-400"></i>
-                        <h4 class="font-bold text-white">آيفون (iOS)</h4>
+                        <i class="fas fa-desktop text-xl text-zinc-400"></i>
+                        <h4 class="font-bold text-white">إعدادات النظام</h4>
                     </div>
                     <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
                         <li class="flex gap-3">
                             <span class="text-yellow-500 font-bold">1.</span>
-                            <span>افتح القائمة واختر <b>"إضافة للشاشة الرئيسية"</b>.</span>
-                        </li>
-                        <li class="flex gap-3">
-                            <span class="text-yellow-500 font-bold">2.</span>
-                            <span>افتح الموقع من الشاشة الرئيسية واضغط على زر الجرس.</span>
+                            <span>أوقف وضع <b>Focus</b> أو <b>Do Not Disturb</b> في جهازك.</span>
                         </li>
                     </ul>
                 </div>
             </div>
-
-            <button onclick="location.reload()" class="w-full mt-8 bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 transition">تحديث الصفحة</button>
+            <button onclick="location.reload()" class="w-full mt-8 bg-yellow-500 text-black font-black py-4 rounded-2xl hover:bg-yellow-400 transition">إعادة تشغيل</button>
         </div>
     </div>
 
@@ -90,26 +78,24 @@
                     <i class="fas fa-chart-line text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black tracking-tighter text-white">Price<span class="text-yellow-500">Now</span> <span class="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded ml-2 uppercase font-bold">Pro Live</span></h1>
+                    <h1 class="text-2xl font-black tracking-tighter text-white">Price<span class="text-yellow-500">Now</span></h1>
                     <div class="flex items-center gap-2">
                         <div class="live-dot"></div>
-                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Live Updates every 1m</p>
+                        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Auto-notify: Every 60s</p>
                     </div>
                 </div>
             </div>
             
             <div class="flex items-center gap-4">
-                <!-- Main Notification Button -->
                 <button id="notify-btn" onclick="requestNotificationPermission()" class="group flex items-center gap-3 bg-zinc-900 border border-zinc-800 hover:border-yellow-500/50 px-5 py-2.5 rounded-2xl transition-all duration-300">
                     <div id="notify-icon-container" class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-500 group-hover:text-yellow-500 transition-colors">
                         <i id="notify-icon" class="fas fa-bell"></i>
                     </div>
                     <div class="text-right">
-                        <p id="notify-label" class="text-[10px] font-black text-zinc-500 uppercase leading-none mb-1">التنبيهات اللحظية</p>
+                        <p id="notify-label" class="text-[10px] font-black text-zinc-500 uppercase leading-none mb-1">تحديث دوري</p>
                         <p id="notify-status-text" class="text-xs font-bold text-white leading-none">تفعيل التنبيهات</p>
                     </div>
                 </button>
-                
                 <button onclick="toggleHelp()" class="w-10 h-10 flex items-center justify-center text-zinc-500 hover:text-white bg-zinc-900/50 border border-zinc-800 rounded-xl transition">
                     <i class="fas fa-question-circle"></i>
                 </button>
@@ -120,29 +106,10 @@
     <main class="max-w-[1600px] mx-auto p-4 lg:p-8">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6" id="dashboard-grid"></div>
 
-        <div class="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] p-8">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
-                <div>
-                    <h2 class="text-3xl font-black text-white mb-2">موجز السوق</h2>
-                    <p class="text-zinc-500 text-sm">يتم إرسال إشعار بسعر الذهب عيار 21 كل دقيقة في الخلفية عند تفعيل الزر أعلاه</p>
-                </div>
-                <div id="clock" class="px-4 py-2 bg-black border border-zinc-800 rounded-xl text-xs font-mono text-yellow-500">00:00:00</div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-right border-collapse">
-                    <thead>
-                        <tr class="text-[10px] text-zinc-500 font-black uppercase tracking-widest border-b border-zinc-800">
-                            <th class="pb-4 pr-4">الصنف</th>
-                            <th class="pb-4 text-center">شراء</th>
-                            <th class="pb-4 text-center">بيع</th>
-                            <th class="pb-4 text-center">أعلى</th>
-                            <th class="pb-4 text-center">أدنى</th>
-                        </tr>
-                    </thead>
-                    <tbody id="detailed-table-body" class="text-sm font-bold"></tbody>
-                </table>
-            </div>
+        <div class="mt-12 bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] p-8 text-center md:text-right">
+            <h2 class="text-3xl font-black text-white mb-2">تنبيهات تلقائية كل دقيقة</h2>
+            <p class="text-zinc-500 text-sm mb-6">سيصلك إشعار فوري عند الضغط على الزر، ثم إشعار جديد كل 60 ثانية بالأسعار المحدثة.</p>
+            <div id="clock" class="inline-block px-4 py-2 bg-black border border-zinc-800 rounded-xl text-xs font-mono text-yellow-500">00:00:00</div>
         </div>
     </main>
 
@@ -154,7 +121,6 @@
             { id: 'pound', name: 'الجنيه الذهب', base: 59000, color: '#fbbf24' }
         ];
 
-        const charts = {};
         const state = {};
         let notificationInterval = null;
 
@@ -178,69 +144,27 @@
         function initDashboard() {
             const grid = document.getElementById('dashboard-grid');
             KARATS.forEach(k => {
-                state[k.id] = { current: k.base, history: Array(20).fill(k.base), high: k.base, low: k.base, change: 0 };
+                state[k.id] = { current: k.base, high: k.base, low: k.base };
                 const card = document.createElement('div');
                 card.className = "gold-card rounded-[2rem] p-6 relative overflow-hidden group";
                 card.innerHTML = `
                     <p class="text-[10px] text-zinc-500 font-black mb-1">${k.name}</p>
                     <h3 id="price-${k.id}" class="text-3xl font-black text-white mono mb-4">${k.base.toLocaleString()}</h3>
-                    <div class="chart-container"><canvas id="chart-${k.id}"></canvas></div>
                 `;
                 grid.appendChild(card);
-                const ctx = document.getElementById(`chart-${k.id}`).getContext('2d');
-                charts[k.id] = new Chart(ctx, {
-                    type: 'line',
-                    data: { labels: state[k.id].history.map((_, i) => i), datasets: [{ data: state[k.id].history, borderColor: k.color, borderWidth: 2, pointRadius: 0, tension: 0.4, fill: false }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-                });
             });
-            renderTable();
         }
 
         function startLiveFeed() {
             setInterval(() => {
                 KARATS.forEach(k => {
                     const s = state[k.id];
-                    const change = (Math.random() * 4) - 2;
-                    s.current += change;
-                    if (s.current > s.high) s.high = s.current;
-                    if (s.current < s.low) s.low = s.current;
-
+                    s.current += (Math.random() * 4) - 2;
                     const priceEl = document.getElementById(`price-${k.id}`);
                     if(priceEl) priceEl.innerText = Math.round(s.current).toLocaleString();
-
-                    charts[k.id].data.datasets[0].data.push(s.current);
-                    if (charts[k.id].data.datasets[0].data.length > 20) charts[k.id].data.datasets[0].data.shift();
-                    charts[k.id].update('none');
                 });
-                updateTablePrices();
                 document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
             }, 2000);
-        }
-
-        function renderTable() {
-            const body = document.getElementById('detailed-table-body');
-            body.innerHTML = '';
-            KARATS.forEach(k => {
-                body.innerHTML += `
-                    <tr class="border-b border-zinc-800/50">
-                        <td class="py-5 pr-4">${k.name}</td>
-                        <td id="td-buy-${k.id}" class="text-center py-5 mono text-white">${Math.round(state[k.id].current).toLocaleString()}</td>
-                        <td id="td-sell-${k.id}" class="text-center py-5 mono text-zinc-500">${Math.round(state[k.id].current - 40).toLocaleString()}</td>
-                        <td id="td-high-${k.id}" class="text-center py-5 mono text-green-500/50 text-xs">${Math.round(state[k.id].high).toLocaleString()}</td>
-                        <td id="td-low-${k.id}" class="text-center py-5 mono text-red-500/50 text-xs">${Math.round(state[k.id].low).toLocaleString()}</td>
-                    </tr>`;
-            });
-        }
-
-        function updateTablePrices() {
-            KARATS.forEach(k => {
-                const s = state[k.id];
-                const buy = document.getElementById(`td-buy-${k.id}`);
-                if(buy) buy.innerText = Math.round(s.current).toLocaleString();
-                const high = document.getElementById(`td-high-${k.id}`);
-                if(high) high.innerText = Math.round(s.high).toLocaleString();
-            });
         }
 
         async function requestNotificationPermission() {
@@ -252,11 +176,18 @@
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
                 updateNotifyUI(true);
-                showToast("تم تفعيل التنبيهات بنجاح.");
+                showToast("بدء إرسال التحديثات كل دقيقة...");
                 
+                // 1. CLEAR existing interval if any
                 if (notificationInterval) clearInterval(notificationInterval);
-                sendPriceNotification();
-                notificationInterval = setInterval(sendPriceNotification, 60000);
+                
+                // 2. SEND IMMEDIATE NOTIFICATION NOW
+                sendPriceNotification("تم تفعيل التنبيهات");
+                
+                // 3. START 1 MINUTE LOOP
+                notificationInterval = setInterval(() => {
+                    sendPriceNotification("تحديث دوري");
+                }, 60000);
             } else {
                 updateNotifyUI(false);
                 toggleHelp();
@@ -273,9 +204,9 @@
                 container.classList.add('border-green-500/50');
                 iconContainer.classList.add('bg-green-500/20', 'text-green-500');
                 iconContainer.classList.remove('bg-zinc-800', 'text-zinc-500');
-                statusText.innerText = "التنبيهات مفعلة";
+                statusText.innerText = "التحديث التلقائي نشط";
                 statusText.classList.add('text-green-500');
-                icon.className = "fas fa-bell-on";
+                icon.className = "fas fa-sync fa-spin";
             } else {
                 container.classList.remove('border-green-500/50');
                 iconContainer.classList.remove('bg-green-500/20', 'text-green-500');
@@ -286,25 +217,27 @@
             }
         }
 
-        function sendPriceNotification() {
+        function sendPriceNotification(titlePrefix) {
             if (Notification.permission !== 'granted') return;
 
             const gold21 = Math.round(state['21'].current);
             const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
-            new Notification("تحديث الذهب: عيار 21", {
-                body: `السعر الحالي: ${gold21} ج.م\nتم التحديث في ${time}`,
+            new Notification(`${titlePrefix}: عيار 21`, {
+                body: `السعر الآن: ${gold21} ج.م\nتوقيت التحديث: ${time}\nالإشعار القادم بعد 60 ثانية.`,
                 icon: "https://cdn-icons-png.flaticon.com/512/265/265682.png",
-                tag: 'price-update'
+                tag: 'price-update', // This ensures only ONE notification is visible at a time
+                renotify: true       // This makes the phone vibrate/sound for every update even if it's the same tag
             });
         }
 
         window.onload = () => {
             initDashboard();
             startLiveFeed();
+            // Resume if already granted on load
             if (Notification.permission === 'granted') {
                 updateNotifyUI(true);
-                notificationInterval = setInterval(sendPriceNotification, 60000);
+                notificationInterval = setInterval(() => sendPriceNotification("تحديث دوري"), 60000);
             }
         };
     </script>
